@@ -1,0 +1,277 @@
+
+======================================================================
+1. FILE NAME AND LOCATION
+======================================================================
+File name: Bank Customer Churn Prediction.csv
+File found: True
+File size (bytes): 561600
+SHA-256 fingerprint: 90f6625c31bdfcb0cde3b94c4f3004e43795e382921d0a5be67c4bd490b38818
+
+======================================================================
+2. ROWS AND COLUMNS
+======================================================================
+Rows: 10000
+Columns: 12
+Column names: ['customer_id', 'credit_score', 'country', 'gender', 'age', 'tenure', 'balance', 'products_number', 'credit_card', 'active_member', 'estimated_salary', 'churn']
+
+First 5 rows:
+   customer_id  credit_score country  gender  age  tenure    balance  products_number  credit_card  active_member  \
+0     15634602           619  France  Female   42       2       0.00                1            1              1   
+1     15647311           608   Spain  Female   41       1  83,807.86                1            0              1   
+2     15619304           502  France  Female   42       8 159,660.80                3            1              0   
+3     15701354           699  France  Female   39       1       0.00                2            0              0   
+4     15737888           850   Spain  Female   43       2 125,510.82                1            1              1   
+
+   estimated_salary  churn  
+0        101,348.88      1  
+1        112,542.58      0  
+2        113,931.57      1  
+3         93,826.63      0  
+4         79,084.10      0  
+
+======================================================================
+3. DATA TYPES
+======================================================================
+customer_id           int64
+credit_score          int64
+country              object
+gender               object
+age                   int64
+tenure                int64
+balance             float64
+products_number       int64
+credit_card           int64
+active_member         int64
+estimated_salary    float64
+churn                 int64
+dtype: object
+
+======================================================================
+4. MISSING VALUES
+======================================================================
+Empty cells per column (as read by pandas):
+customer_id         0
+credit_score        0
+country             0
+gender              0
+age                 0
+tenure              0
+balance             0
+products_number     0
+credit_card         0
+active_member       0
+estimated_salary    0
+churn               0
+dtype: int64
+
+Total empty cells: 0
+
+Blank or placeholder text in the text columns:
+  country : 0
+  gender : 0
+
+======================================================================
+5. DUPLICATES
+======================================================================
+Fully duplicated rows: 0
+Duplicated customer IDs: 0
+Same details under a different customer ID: 0
+
+======================================================================
+6. UNIQUE VALUES IN CATEGORICAL AND BINARY COLUMNS
+======================================================================
+
+country
+France     5014
+Germany    2509
+Spain      2477
+Name: count, dtype: int64
+
+gender
+Female    4543
+Male      5457
+Name: count, dtype: int64
+
+credit_card
+0    2945
+1    7055
+Name: count, dtype: int64
+
+active_member
+0    4849
+1    5151
+Name: count, dtype: int64
+
+churn
+0    7963
+1    2037
+Name: count, dtype: int64
+
+Text with extra spaces at the start or end:
+  country : 0
+  gender : 0
+
+======================================================================
+7. NUMERICAL SUMMARY
+======================================================================
+                    min        max       mean     median
+credit_score     350.00     850.00     650.53     652.00
+age               18.00      92.00      38.92      37.00
+tenure             0.00      10.00       5.01       5.00
+balance            0.00 250,898.09  76,485.89  97,198.54
+products_number    1.00       4.00       1.53       1.00
+estimated_salary  11.58 199,992.48 100,090.24 100,193.91
+
+Number of different values in each numerical column:
+credit_score         460
+age                   70
+tenure                11
+balance             6382
+products_number        4
+estimated_salary    9999
+dtype: int64
+
+Values in small whole-number columns:
+tenure
+0      413
+1     1035
+2     1048
+3     1009
+4      989
+5     1012
+6      967
+7     1028
+8     1025
+9      984
+10     490
+Name: count, dtype: int64
+
+products_number
+1    5084
+2    4590
+3     266
+4      60
+Name: count, dtype: int64
+
+======================================================================
+8. UNUSUAL OR POTENTIALLY INVALID VALUES
+======================================================================
+A. Rule checks (count of rows that break each rule)
+  credit_score outside 300-850: 0
+  age under 18: 0
+  age over 100: 0
+  negative tenure: 0
+  tenure not shorter than age: 0
+  negative balance: 0
+  zero or negative estimated_salary: 0
+  products_number outside 1-4: 0
+  credit_card not 0 or 1: 0
+  active_member not 0 or 1: 0
+  churn not 0 or 1: 0
+
+B. Values worth a closer look
+  balance exactly 0: 3617
+  smallest balance above 0: 3768.69
+  estimated_salary under 1,000: 59
+  estimated_salary under 100: 4
+  credit_score exactly 850: 233
+  age 80 or above: 15
+  tenure of 0: 413
+
+C. Statistical outliers (the 1.5 x IQR rule)
+   Outliers are unusually far from most values. They are not always errors.
+  credit_score: 15 outside 383.00 to 919.00
+  age: 359 outside 14.00 to 62.00
+  tenure: 0 outside -3.00 to 13.00
+  balance: 0 outside -191,466.36 to 319,110.60
+  products_number: 60 outside -0.50 to 3.50
+  estimated_salary: 0 outside -96,577.10 to 296,967.45
+
+D. Customers with a zero balance, by country
+balance is 0  False  True 
+country                   
+France         2596   2418
+Germany        2509      0
+Spain          1278   1199
+
+======================================================================
+9. CUSTOMER COUNTS IN THE PROPOSED PHASE 1 BANDS
+======================================================================
+
+Age
+age
+Under 30    1641
+30-39       4346
+40-49       2618
+50-59        869
+60+          526
+Name: count, dtype: int64
+Customers not placed in a band: 0
+
+Tenure
+tenure
+0-2     2496
+3-5     3010
+6-8     3020
+9-10    1474
+Name: count, dtype: int64
+Customers not placed in a band: 0
+
+Credit score
+credit_score
+Below 580    2362
+580-669      3331
+670-739      2428
+740-799      1224
+800+          655
+Name: count, dtype: int64
+Customers not placed in a band: 0
+
+Estimated salary
+estimated_salary
+Under 50,000       2453
+50,000-99,999      2537
+100,000-149,999    2555
+150,000+           2455
+Name: count, dtype: int64
+Customers not placed in a band: 0
+
+Balance
+balance
+Zero                        3617
+Above 0 to 50,000             75
+Above 50,000 to 100,000     1509
+Above 100,000 to 150,000    3830
+Above 150,000                969
+Name: count, dtype: int64
+Customers not placed in a band: 0
+
+Balance values between 50,000 and 50,001: 0
+Balance values between 100,000 and 100,001: 0
+Balance values between 150,000 and 150,001: 0
+
+======================================================================
+10. BALANCE ASSUMPTION CHECK
+======================================================================
+Rows with churn = 1 and balance above 0: 1537
+
+======================================================================
+11. CROSS-CHECK WITHOUT PANDAS
+======================================================================
+Data rows: 10000 | matches pandas: True
+Columns: 12 | matches pandas: True
+Every row has the same number of columns: True
+Blank cells: 0 | matches pandas: True
+Different customer IDs: 10000 | matches pandas: True
+Different full rows: 10000 | matches pandas: True
+country {'France': 5014, 'Germany': 2509, 'Spain': 2477} | matches pandas: True
+gender {'Female': 4543, 'Male': 5457} | matches pandas: True
+credit_card {'0': 2945, '1': 7055} | matches pandas: True
+active_member {'0': 4849, '1': 5151} | matches pandas: True
+churn {'0': 7963, '1': 2037} | matches pandas: True
+
+======================================================================
+12. ORIGINAL FILE CHECK
+======================================================================
+SHA-256 at end: 90f6625c31bdfcb0cde3b94c4f3004e43795e382921d0a5be67c4bd490b38818
+File unchanged during this script: True

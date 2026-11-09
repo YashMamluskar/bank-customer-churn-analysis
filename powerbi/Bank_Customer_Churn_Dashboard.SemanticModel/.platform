@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "Bank_Customer_Churn_Dashboard"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "12dcc63f-5701-5540-9e72-9f2055968a69"
+  }
+}

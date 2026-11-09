@@ -1,0 +1,897 @@
+Phase 5 SQL results
+Server: MySQL 8.0.40, on a temporary private test instance. Scripts 01 to 05 were run in order.
+The only change from sql/01_database_setup.sql: the CSV path in LOAD DATA pointed at a test copy of the file.
+
+################ 01 ################
+--------------
+CREATE DATABASE IF NOT EXISTS bank_churn_analysis
+--------------
+
+--------------
+DROP TABLE IF EXISTS bank_customers
+--------------
+
+--------------
+CREATE TABLE bank_customers (
+    customer_id        INT            NOT NULL,
+    credit_score       SMALLINT       NOT NULL,
+    country            VARCHAR(20)    NOT NULL,
+    gender             VARCHAR(10)    NOT NULL,
+    age                TINYINT        NOT NULL,
+    tenure             TINYINT        NOT NULL,
+    balance            DECIMAL(12,2)  NOT NULL,
+    products_number    TINYINT        NOT NULL,
+    credit_card        TINYINT        NOT NULL,
+    active_member      TINYINT        NOT NULL,
+    estimated_salary   DECIMAL(12,2)  NOT NULL,
+    churn              TINYINT        NOT NULL,
+    age_group          VARCHAR(30)    NOT NULL,
+    tenure_group       VARCHAR(30)    NOT NULL,
+    credit_score_band  VARCHAR(30)    NOT NULL,
+    salary_band        VARCHAR(30)    NOT NULL,
+    balance_band       VARCHAR(30)    NOT NULL,
+    PRIMARY KEY (customer_id)
+)
+--------------
+
+--------------
+LOAD DATA INFILE '<test folder>/bank_churn_cleaned.csv'
+INTO TABLE bank_customers
+FIELDS TERMINATED BY ','
+OPTIONALLY ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 LINES
+--------------
+
+--------------
+SELECT COUNT(*) AS rows_imported
+FROM bank_customers
+--------------
+
++---------------+
+| rows_imported |
++---------------+
+|         10000 |
++---------------+
+--------------
+SELECT COUNT(*) AS columns_imported
+FROM information_schema.columns
+WHERE table_schema = 'bank_churn_analysis'
+  AND table_name = 'bank_customers'
+--------------
+
++------------------+
+| columns_imported |
++------------------+
+|               17 |
++------------------+
+--------------
+SELECT COUNT(DISTINCT customer_id) AS unique_customer_ids
+FROM bank_customers
+--------------
+
++---------------------+
+| unique_customer_ids |
++---------------------+
+|               10000 |
++---------------------+
+--------------
+SELECT salary_band, COUNT(*) AS customers
+FROM bank_customers
+GROUP BY salary_band
+ORDER BY MIN(estimated_salary)
+--------------
+
++--------------------------+-----------+
+| salary_band              | customers |
++--------------------------+-----------+
+| Under 50,000             |      2453 |
+| 50,000 to under 100,000  |      2537 |
+| 100,000 to under 150,000 |      2555 |
+| 150,000 and above        |      2455 |
++--------------------------+-----------+
+--------------
+SELECT balance_band, COUNT(*) AS customers
+FROM bank_customers
+GROUP BY balance_band
+ORDER BY MIN(balance)
+--------------
+
++--------------------------+-----------+
+| balance_band             | customers |
++--------------------------+-----------+
+| Zero                     |      3617 |
+| Above 0 to 100,000       |      1584 |
+| Above 100,000 to 150,000 |      3830 |
+| Above 150,000            |       969 |
++--------------------------+-----------+
+--------------
+SELECT
+    SUM(balance_band LIKE '%\r%') AS labels_with_line_break,
+    SUM(TRIM(country) = '') AS blank_countries,
+    SUM(TRIM(gender) = '') AS blank_genders,
+    SUM(TRIM(age_group) = '') AS blank_age_groups,
+    SUM(TRIM(tenure_group) = '') AS blank_tenure_groups,
+    SUM(TRIM(credit_score_band) = '') AS blank_credit_bands,
+    SUM(TRIM(salary_band) = '') AS blank_salary_bands,
+    SUM(TRIM(balance_band) = '') AS blank_balance_bands
+FROM bank_customers
+--------------
+
++------------------------+-----------------+---------------+------------------+---------------------+--------------------+--------------------+---------------------+
+| labels_with_line_break | blank_countries | blank_genders | blank_age_groups | blank_tenure_groups | blank_credit_bands | blank_salary_bands | blank_balance_bands |
++------------------------+-----------------+---------------+------------------+---------------------+--------------------+--------------------+---------------------+
+|                      0 |               0 |             0 |                0 |                   0 |                  0 |                  0 |                   0 |
++------------------------+-----------------+---------------+------------------+---------------------+--------------------+--------------------+---------------------+
+--------------
+SELECT *
+FROM bank_customers
+ORDER BY customer_id
+LIMIT 5
+--------------
+
++-------------+--------------+---------+--------+-----+--------+-----------+-----------------+-------------+---------------+------------------+-------+-----------+--------------+-------------------+-------------------------+--------------------+
+| customer_id | credit_score | country | gender | age | tenure | balance   | products_number | credit_card | active_member | estimated_salary | churn | age_group | tenure_group | credit_score_band | salary_band             | balance_band       |
++-------------+--------------+---------+--------+-----+--------+-----------+-----------------+-------------+---------------+------------------+-------+-----------+--------------+-------------------+-------------------------+--------------------+
+|    15565701 |          698 | Spain   | Female |  39 |      9 | 161993.89 |               1 |           0 |             0 |         90212.38 |     0 | 30 to 39  | 9 to 10      | 670 to 739        | 50,000 to under 100,000 | Above 150,000      |
+|    15565706 |          612 | Spain   | Male   |  35 |      1 |      0.00 |               1 |           1 |             1 |         83256.26 |     1 | 30 to 39  | 0 to 2       | 580 to 669        | 50,000 to under 100,000 | Zero               |
+|    15565714 |          601 | France  | Male   |  47 |      1 |  64430.06 |               2 |           0 |             1 |         96517.97 |     0 | 40 to 49  | 0 to 2       | 580 to 669        | 50,000 to under 100,000 | Above 0 to 100,000 |
+|    15565779 |          627 | Germany | Female |  30 |      6 |  57809.32 |               1 |           1 |             0 |        188258.49 |     0 | 30 to 39  | 6 to 8       | 580 to 669        | 150,000 and above       | Above 0 to 100,000 |
+|    15565796 |          745 | Germany | Male   |  48 |     10 |  96048.55 |               1 |           1 |             0 |         74510.65 |     0 | 40 to 49  | 9 to 10      | 740 to 799        | 50,000 to under 100,000 | Above 0 to 100,000 |
++-------------+--------------+---------+--------+-----+--------+-----------+-----------------+-------------+---------------+------------------+-------+-----------+--------------+-------------------+-------------------------+--------------------+
+
+################ 02_overall_churn_analysis ################
+--------------
+SELECT
+    COUNT(*) AS total_customers,
+    SUM(churn) AS churned_customers,
+    COUNT(*) - SUM(churn) AS retained_customers,
+    ROUND(SUM(churn) * 100.0 / COUNT(*), 2) AS churn_rate_pct,
+    ROUND((COUNT(*) - SUM(churn)) * 100.0 / COUNT(*), 2) AS retention_rate_pct,
+    ROUND(SUM(active_member) * 100.0 / COUNT(*), 2) AS active_member_rate_pct,
+    ROUND(AVG(products_number), 2) AS avg_products_per_customer
+FROM bank_customers
+--------------
+
++-----------------+-------------------+--------------------+----------------+--------------------+------------------------+---------------------------+
+| total_customers | churned_customers | retained_customers | churn_rate_pct | retention_rate_pct | active_member_rate_pct | avg_products_per_customer |
++-----------------+-------------------+--------------------+----------------+--------------------+------------------------+---------------------------+
+|           10000 |              2037 |               7963 |          20.37 |              79.63 |                  51.51 |                      1.53 |
++-----------------+-------------------+--------------------+----------------+--------------------+------------------------+---------------------------+
+--------------
+SELECT
+    CASE WHEN churn = 1 THEN 'Churned' ELSE 'Retained' END AS customer_status,
+    COUNT(*) AS customers,
+    ROUND(AVG(age), 2) AS avg_age,
+    ROUND(AVG(credit_score), 2) AS avg_credit_score,
+    ROUND(AVG(tenure), 2) AS avg_tenure,
+    ROUND(AVG(balance), 2) AS avg_balance,
+    ROUND(AVG(estimated_salary), 2) AS avg_estimated_salary,
+    ROUND(AVG(products_number), 2) AS avg_products
+FROM bank_customers
+GROUP BY churn
+ORDER BY churn DESC
+--------------
+
++-----------------+-----------+---------+------------------+------------+-------------+----------------------+--------------+
+| customer_status | customers | avg_age | avg_credit_score | avg_tenure | avg_balance | avg_estimated_salary | avg_products |
++-----------------+-----------+---------+------------------+------------+-------------+----------------------+--------------+
+| Churned         |      2037 |   44.84 |           645.35 |       4.93 |    91108.54 |            101465.68 |         1.48 |
+| Retained        |      7963 |   37.41 |           651.85 |       5.03 |    72745.30 |             99738.39 |         1.54 |
++-----------------+-----------+---------+------------------+------------+-------------+----------------------+--------------+
+--------------
+SELECT
+    CASE WHEN churn = 1 THEN 'Churned' ELSE 'Retained' END AS customer_status,
+    COUNT(*) AS customers_with_balance,
+    ROUND(AVG(balance), 2) AS avg_balance_above_zero
+FROM bank_customers
+WHERE balance > 0
+GROUP BY churn
+ORDER BY churn DESC
+--------------
+
++-----------------+------------------------+------------------------+
+| customer_status | customers_with_balance | avg_balance_above_zero |
++-----------------+------------------------+------------------------+
+| Churned         |                   1537 |              120746.97 |
+| Retained        |                   4846 |              119535.86 |
++-----------------+------------------------+------------------------+
+--------------
+SELECT
+    CASE WHEN churn = 1 THEN 'Churned' ELSE 'Retained' END AS customer_status,
+    SUM(CASE WHEN balance = 0 THEN 1 ELSE 0 END) AS zero_balance_customers,
+    ROUND(SUM(CASE WHEN balance = 0 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS zero_balance_pct
+FROM bank_customers
+GROUP BY churn
+ORDER BY churn DESC
+--------------
+
++-----------------+------------------------+------------------+
+| customer_status | zero_balance_customers | zero_balance_pct |
++-----------------+------------------------+------------------+
+| Churned         |                    500 |            24.55 |
+| Retained        |                   3117 |            39.14 |
++-----------------+------------------------+------------------+
+--------------
+SELECT
+    SUM(CASE WHEN churn = 1 THEN balance ELSE 0 END) AS balance_held_by_churned,
+    SUM(balance) AS balance_held_by_all,
+    ROUND(SUM(CASE WHEN churn = 1 THEN balance ELSE 0 END) * 100.0 / SUM(balance), 2) AS churned_share_of_balance_pct
+FROM bank_customers
+--------------
+
++-------------------------+---------------------+------------------------------+
+| balance_held_by_churned | balance_held_by_all | churned_share_of_balance_pct |
++-------------------------+---------------------+------------------------------+
+|            185588094.63 |        764858892.88 |                        24.26 |
++-------------------------+---------------------+------------------------------+
+
+################ 03_customer_segmentation ################
+--------------
+SELECT
+    country,
+    COUNT(*) AS total_customers,
+    SUM(churn) AS churned,
+    COUNT(*) - SUM(churn) AS retained,
+    ROUND(SUM(churn) * 100.0 / COUNT(*), 2) AS churn_rate_pct,
+    ROUND(SUM(churn) * 100.0 / (SELECT SUM(churn) FROM bank_customers), 2) AS share_of_churn_pct
+FROM bank_customers
+GROUP BY country
+ORDER BY churn_rate_pct DESC
+--------------
+
++---------+-----------------+---------+----------+----------------+--------------------+
+| country | total_customers | churned | retained | churn_rate_pct | share_of_churn_pct |
++---------+-----------------+---------+----------+----------------+--------------------+
+| Germany |            2509 |     814 |     1695 |          32.44 |              39.96 |
+| Spain   |            2477 |     413 |     2064 |          16.67 |              20.27 |
+| France  |            5014 |     810 |     4204 |          16.15 |              39.76 |
++---------+-----------------+---------+----------+----------------+--------------------+
+--------------
+SELECT
+    gender,
+    COUNT(*) AS total_customers,
+    SUM(churn) AS churned,
+    COUNT(*) - SUM(churn) AS retained,
+    ROUND(SUM(churn) * 100.0 / COUNT(*), 2) AS churn_rate_pct,
+    ROUND(SUM(churn) * 100.0 / (SELECT SUM(churn) FROM bank_customers), 2) AS share_of_churn_pct
+FROM bank_customers
+GROUP BY gender
+ORDER BY churn_rate_pct DESC
+--------------
+
++--------+-----------------+---------+----------+----------------+--------------------+
+| gender | total_customers | churned | retained | churn_rate_pct | share_of_churn_pct |
++--------+-----------------+---------+----------+----------------+--------------------+
+| Female |            4543 |    1139 |     3404 |          25.07 |              55.92 |
+| Male   |            5457 |     898 |     4559 |          16.46 |              44.08 |
++--------+-----------------+---------+----------+----------------+--------------------+
+--------------
+SELECT
+    age_group,
+    COUNT(*) AS total_customers,
+    SUM(churn) AS churned,
+    COUNT(*) - SUM(churn) AS retained,
+    ROUND(SUM(churn) * 100.0 / COUNT(*), 2) AS churn_rate_pct,
+    ROUND(SUM(churn) * 100.0 / (SELECT SUM(churn) FROM bank_customers), 2) AS share_of_churn_pct
+FROM bank_customers
+GROUP BY age_group
+ORDER BY MIN(age)
+--------------
+
++--------------+-----------------+---------+----------+----------------+--------------------+
+| age_group    | total_customers | churned | retained | churn_rate_pct | share_of_churn_pct |
++--------------+-----------------+---------+----------+----------------+--------------------+
+| Under 30     |            1641 |     124 |     1517 |           7.56 |               6.09 |
+| 30 to 39     |            4346 |     473 |     3873 |          10.88 |              23.22 |
+| 40 to 49     |            2618 |     806 |     1812 |          30.79 |              39.57 |
+| 50 to 59     |             869 |     487 |      382 |          56.04 |              23.91 |
+| 60 and above |             526 |     147 |      379 |          27.95 |               7.22 |
++--------------+-----------------+---------+----------+----------------+--------------------+
+--------------
+SELECT
+    tenure_group,
+    COUNT(*) AS total_customers,
+    SUM(churn) AS churned,
+    COUNT(*) - SUM(churn) AS retained,
+    ROUND(SUM(churn) * 100.0 / COUNT(*), 2) AS churn_rate_pct,
+    ROUND(SUM(churn) * 100.0 / (SELECT SUM(churn) FROM bank_customers), 2) AS share_of_churn_pct
+FROM bank_customers
+GROUP BY tenure_group
+ORDER BY MIN(tenure)
+--------------
+
++--------------+-----------------+---------+----------+----------------+--------------------+
+| tenure_group | total_customers | churned | retained | churn_rate_pct | share_of_churn_pct |
++--------------+-----------------+---------+----------+----------------+--------------------+
+| 0 to 2       |            2496 |     528 |     1968 |          21.15 |              25.92 |
+| 3 to 5       |            3010 |     625 |     2385 |          20.76 |              30.68 |
+| 6 to 8       |            3020 |     570 |     2450 |          18.87 |              27.98 |
+| 9 to 10      |            1474 |     314 |     1160 |          21.30 |              15.41 |
++--------------+-----------------+---------+----------+----------------+--------------------+
+--------------
+SELECT
+    CASE WHEN active_member = 1 THEN 'Active' ELSE 'Inactive' END AS membership_status,
+    COUNT(*) AS total_customers,
+    SUM(churn) AS churned,
+    COUNT(*) - SUM(churn) AS retained,
+    ROUND(SUM(churn) * 100.0 / COUNT(*), 2) AS churn_rate_pct,
+    ROUND(SUM(churn) * 100.0 / (SELECT SUM(churn) FROM bank_customers), 2) AS share_of_churn_pct
+FROM bank_customers
+GROUP BY active_member
+ORDER BY churn_rate_pct DESC
+--------------
+
++-------------------+-----------------+---------+----------+----------------+--------------------+
+| membership_status | total_customers | churned | retained | churn_rate_pct | share_of_churn_pct |
++-------------------+-----------------+---------+----------+----------------+--------------------+
+| Inactive          |            4849 |    1302 |     3547 |          26.85 |              63.92 |
+| Active            |            5151 |     735 |     4416 |          14.27 |              36.08 |
++-------------------+-----------------+---------+----------+----------------+--------------------+
+--------------
+SELECT
+    products_number,
+    COUNT(*) AS total_customers,
+    SUM(churn) AS churned,
+    COUNT(*) - SUM(churn) AS retained,
+    ROUND(SUM(churn) * 100.0 / COUNT(*), 2) AS churn_rate_pct,
+    ROUND(SUM(churn) * 100.0 / (SELECT SUM(churn) FROM bank_customers), 2) AS share_of_churn_pct,
+    CASE WHEN COUNT(*) < 100 THEN 'Small group' ELSE '' END AS caution
+FROM bank_customers
+GROUP BY products_number
+ORDER BY products_number
+--------------
+
++-----------------+-----------------+---------+----------+----------------+--------------------+-------------+
+| products_number | total_customers | churned | retained | churn_rate_pct | share_of_churn_pct | caution     |
++-----------------+-----------------+---------+----------+----------------+--------------------+-------------+
+|               1 |            5084 |    1409 |     3675 |          27.71 |              69.17 |             |
+|               2 |            4590 |     348 |     4242 |           7.58 |              17.08 |             |
+|               3 |             266 |     220 |       46 |          82.71 |              10.80 |             |
+|               4 |              60 |      60 |        0 |         100.00 |               2.95 | Small group |
++-----------------+-----------------+---------+----------+----------------+--------------------+-------------+
+--------------
+SELECT
+    CASE WHEN credit_card = 1 THEN 'Has credit card' ELSE 'No credit card' END AS card_status,
+    COUNT(*) AS total_customers,
+    SUM(churn) AS churned,
+    COUNT(*) - SUM(churn) AS retained,
+    ROUND(SUM(churn) * 100.0 / COUNT(*), 2) AS churn_rate_pct,
+    ROUND(SUM(churn) * 100.0 / (SELECT SUM(churn) FROM bank_customers), 2) AS share_of_churn_pct
+FROM bank_customers
+GROUP BY credit_card
+ORDER BY credit_card
+--------------
+
++-----------------+-----------------+---------+----------+----------------+--------------------+
+| card_status     | total_customers | churned | retained | churn_rate_pct | share_of_churn_pct |
++-----------------+-----------------+---------+----------+----------------+--------------------+
+| No credit card  |            2945 |     613 |     2332 |          20.81 |              30.09 |
+| Has credit card |            7055 |    1424 |     5631 |          20.18 |              69.91 |
++-----------------+-----------------+---------+----------+----------------+--------------------+
+--------------
+SELECT
+    credit_score_band,
+    COUNT(*) AS total_customers,
+    SUM(churn) AS churned,
+    COUNT(*) - SUM(churn) AS retained,
+    ROUND(SUM(churn) * 100.0 / COUNT(*), 2) AS churn_rate_pct,
+    ROUND(SUM(churn) * 100.0 / (SELECT SUM(churn) FROM bank_customers), 2) AS share_of_churn_pct
+FROM bank_customers
+GROUP BY credit_score_band
+ORDER BY MIN(credit_score)
+--------------
+
++-------------------+-----------------+---------+----------+----------------+--------------------+
+| credit_score_band | total_customers | churned | retained | churn_rate_pct | share_of_churn_pct |
++-------------------+-----------------+---------+----------+----------------+--------------------+
+| Below 580         |            2362 |     520 |     1842 |          22.02 |              25.53 |
+| 580 to 669        |            3331 |     685 |     2646 |          20.56 |              33.63 |
+| 670 to 739        |            2428 |     452 |     1976 |          18.62 |              22.19 |
+| 740 to 799        |            1224 |     252 |      972 |          20.59 |              12.37 |
+| 800 and above     |             655 |     128 |      527 |          19.54 |               6.28 |
++-------------------+-----------------+---------+----------+----------------+--------------------+
+--------------
+SELECT
+    balance_band,
+    COUNT(*) AS total_customers,
+    SUM(churn) AS churned,
+    COUNT(*) - SUM(churn) AS retained,
+    ROUND(SUM(churn) * 100.0 / COUNT(*), 2) AS churn_rate_pct,
+    ROUND(SUM(churn) * 100.0 / (SELECT SUM(churn) FROM bank_customers), 2) AS share_of_churn_pct
+FROM bank_customers
+GROUP BY balance_band
+ORDER BY MIN(balance)
+--------------
+
++--------------------------+-----------------+---------+----------+----------------+--------------------+
+| balance_band             | total_customers | churned | retained | churn_rate_pct | share_of_churn_pct |
++--------------------------+-----------------+---------+----------+----------------+--------------------+
+| Zero                     |            3617 |     500 |     3117 |          13.82 |              24.55 |
+| Above 0 to 100,000       |            1584 |     326 |     1258 |          20.58 |              16.00 |
+| Above 100,000 to 150,000 |            3830 |     987 |     2843 |          25.77 |              48.45 |
+| Above 150,000            |             969 |     224 |      745 |          23.12 |              11.00 |
++--------------------------+-----------------+---------+----------+----------------+--------------------+
+--------------
+SELECT
+    salary_band,
+    COUNT(*) AS total_customers,
+    SUM(churn) AS churned,
+    COUNT(*) - SUM(churn) AS retained,
+    ROUND(SUM(churn) * 100.0 / COUNT(*), 2) AS churn_rate_pct,
+    ROUND(SUM(churn) * 100.0 / (SELECT SUM(churn) FROM bank_customers), 2) AS share_of_churn_pct
+FROM bank_customers
+GROUP BY salary_band
+ORDER BY MIN(estimated_salary)
+--------------
+
++--------------------------+-----------------+---------+----------+----------------+--------------------+
+| salary_band              | total_customers | churned | retained | churn_rate_pct | share_of_churn_pct |
++--------------------------+-----------------+---------+----------+----------------+--------------------+
+| Under 50,000             |            2453 |     489 |     1964 |          19.93 |              24.01 |
+| 50,000 to under 100,000  |            2537 |     504 |     2033 |          19.87 |              24.74 |
+| 100,000 to under 150,000 |            2555 |     517 |     2038 |          20.23 |              25.38 |
+| 150,000 and above        |            2455 |     527 |     1928 |          21.47 |              25.87 |
++--------------------------+-----------------+---------+----------+----------------+--------------------+
+
+################ 04_priority_segments ################
+--------------
+WITH overall AS (
+    SELECT SUM(churn) AS all_churned,
+           SUM(churn) * 100.0 / COUNT(*) AS overall_rate
+    FROM bank_customers
+)
+SELECT
+    age_group,
+    CASE WHEN active_member = 1 THEN 'Active' ELSE 'Inactive' END AS membership_status,
+    COUNT(*) AS total_customers,
+    SUM(churn) AS churned,
+    ROUND(SUM(churn) * 100.0 / COUNT(*), 2) AS churn_rate_pct,
+    ROUND(SUM(churn) * 100.0 / overall.all_churned, 2) AS share_of_churn_pct,
+    CASE
+        WHEN COUNT(*) >= 100
+         AND SUM(churn) * 100.0 / COUNT(*) >= overall.overall_rate * 2
+         AND SUM(churn) * 100.0 / overall.all_churned >= 10
+        THEN 'Priority' ELSE ''
+    END AS priority_flag
+FROM bank_customers
+CROSS JOIN overall
+GROUP BY age_group, active_member, overall.all_churned, overall.overall_rate
+ORDER BY MIN(age), active_member
+--------------
+
++--------------+-------------------+-----------------+---------+----------------+--------------------+---------------+
+| age_group    | membership_status | total_customers | churned | churn_rate_pct | share_of_churn_pct | priority_flag |
++--------------+-------------------+-----------------+---------+----------------+--------------------+---------------+
+| Under 30     | Inactive          |             804 |      79 |           9.83 |               3.88 |               |
+| Under 30     | Active            |             837 |      45 |           5.38 |               2.21 |               |
+| 30 to 39     | Inactive          |            2165 |     295 |          13.63 |              14.48 |               |
+| 30 to 39     | Active            |            2181 |     178 |           8.16 |               8.74 |               |
+| 40 to 49     | Inactive          |            1396 |     530 |          37.97 |              26.02 |               |
+| 40 to 49     | Active            |            1222 |     276 |          22.59 |              13.55 |               |
+| 50 to 59     | Inactive          |             373 |     303 |          81.23 |              14.87 | Priority      |
+| 50 to 59     | Active            |             496 |     184 |          37.10 |               9.03 |               |
+| 60 and above | Inactive          |             111 |      95 |          85.59 |               4.66 |               |
+| 60 and above | Active            |             415 |      52 |          12.53 |               2.55 |               |
++--------------+-------------------+-----------------+---------+----------------+--------------------+---------------+
+--------------
+WITH overall AS (
+    SELECT SUM(churn) AS all_churned,
+           SUM(churn) * 100.0 / COUNT(*) AS overall_rate
+    FROM bank_customers
+)
+SELECT
+    country,
+    balance_band,
+    COUNT(*) AS total_customers,
+    SUM(churn) AS churned,
+    ROUND(SUM(churn) * 100.0 / COUNT(*), 2) AS churn_rate_pct,
+    ROUND(SUM(churn) * 100.0 / overall.all_churned, 2) AS share_of_churn_pct,
+    CASE
+        WHEN COUNT(*) >= 100
+         AND SUM(churn) * 100.0 / COUNT(*) >= overall.overall_rate * 2
+         AND SUM(churn) * 100.0 / overall.all_churned >= 10
+        THEN 'Priority' ELSE ''
+    END AS priority_flag
+FROM bank_customers
+CROSS JOIN overall
+GROUP BY country, balance_band, overall.all_churned, overall.overall_rate
+ORDER BY country, MIN(balance)
+--------------
+
++---------+--------------------------+-----------------+---------+----------------+--------------------+---------------+
+| country | balance_band             | total_customers | churned | churn_rate_pct | share_of_churn_pct | priority_flag |
++---------+--------------------------+-----------------+---------+----------------+--------------------+---------------+
+| France  | Zero                     |            2418 |     337 |          13.94 |              16.54 |               |
+| France  | Above 0 to 100,000       |             688 |     130 |          18.90 |               6.38 |               |
+| France  | Above 100,000 to 150,000 |            1476 |     238 |          16.12 |              11.68 |               |
+| France  | Above 150,000            |             432 |     105 |          24.31 |               5.15 |               |
+| Germany | Above 0 to 100,000       |             543 |     108 |          19.89 |               5.30 |               |
+| Germany | Above 100,000 to 150,000 |            1652 |     646 |          39.10 |              31.71 |               |
+| Germany | Above 150,000            |             314 |      60 |          19.11 |               2.95 |               |
+| Spain   | Zero                     |            1199 |     163 |          13.59 |               8.00 |               |
+| Spain   | Above 0 to 100,000       |             353 |      88 |          24.93 |               4.32 |               |
+| Spain   | Above 100,000 to 150,000 |             702 |     103 |          14.67 |               5.06 |               |
+| Spain   | Above 150,000            |             223 |      59 |          26.46 |               2.90 |               |
++---------+--------------------------+-----------------+---------+----------------+--------------------+---------------+
+--------------
+WITH overall AS (
+    SELECT SUM(churn) AS all_churned,
+           SUM(churn) * 100.0 / COUNT(*) AS overall_rate
+    FROM bank_customers
+)
+SELECT
+    CASE WHEN active_member = 1 THEN 'Active' ELSE 'Inactive' END AS membership_status,
+    products_number,
+    COUNT(*) AS total_customers,
+    SUM(churn) AS churned,
+    ROUND(SUM(churn) * 100.0 / COUNT(*), 2) AS churn_rate_pct,
+    ROUND(SUM(churn) * 100.0 / overall.all_churned, 2) AS share_of_churn_pct,
+    CASE WHEN COUNT(*) < 100 THEN 'Small group'
+         WHEN SUM(churn) * 100.0 / COUNT(*) >= overall.overall_rate * 2
+          AND SUM(churn) * 100.0 / overall.all_churned >= 10
+         THEN 'Priority' ELSE ''
+    END AS priority_flag
+FROM bank_customers
+CROSS JOIN overall
+GROUP BY active_member, products_number, overall.all_churned, overall.overall_rate
+ORDER BY active_member, products_number
+--------------
+
++-------------------+-----------------+-----------------+---------+----------------+--------------------+---------------+
+| membership_status | products_number | total_customers | churned | churn_rate_pct | share_of_churn_pct | priority_flag |
++-------------------+-----------------+-----------------+---------+----------------+--------------------+---------------+
+| Inactive          |               1 |            2521 |     924 |          36.65 |              45.36 |               |
+| Inactive          |               2 |            2144 |     212 |           9.89 |              10.41 |               |
+| Inactive          |               3 |             153 |     135 |          88.24 |               6.63 |               |
+| Inactive          |               4 |              31 |      31 |         100.00 |               1.52 | Small group   |
+| Active            |               1 |            2563 |     485 |          18.92 |              23.81 |               |
+| Active            |               2 |            2446 |     136 |           5.56 |               6.68 |               |
+| Active            |               3 |             113 |      85 |          75.22 |               4.17 |               |
+| Active            |               4 |              29 |      29 |         100.00 |               1.42 | Small group   |
++-------------------+-----------------+-----------------+---------+----------------+--------------------+---------------+
+--------------
+CREATE OR REPLACE VIEW pair_segments AS
+SELECT CONCAT(country, ' + ', gender) AS segment, COUNT(*) AS customers, SUM(churn) AS churned
+FROM bank_customers GROUP BY country, gender
+UNION ALL
+SELECT CONCAT(country, ' + Age ', age_group), COUNT(*), SUM(churn)
+FROM bank_customers GROUP BY country, age_group
+UNION ALL
+SELECT CONCAT(country, ' + ', IF(active_member = 1, 'Active', 'Inactive')), COUNT(*), SUM(churn)
+FROM bank_customers GROUP BY country, active_member
+UNION ALL
+SELECT CONCAT(country, ' + ', products_number, IF(products_number = 1, ' product', ' products')), COUNT(*), SUM(churn)
+FROM bank_customers GROUP BY country, products_number
+UNION ALL
+SELECT CONCAT(country, ' + Balance ', balance_band), COUNT(*), SUM(churn)
+FROM bank_customers GROUP BY country, balance_band
+UNION ALL
+SELECT CONCAT(gender, ' + Age ', age_group), COUNT(*), SUM(churn)
+FROM bank_customers GROUP BY gender, age_group
+UNION ALL
+SELECT CONCAT(gender, ' + ', IF(active_member = 1, 'Active', 'Inactive')), COUNT(*), SUM(churn)
+FROM bank_customers GROUP BY gender, active_member
+UNION ALL
+SELECT CONCAT(gender, ' + ', products_number, IF(products_number = 1, ' product', ' products')), COUNT(*), SUM(churn)
+FROM bank_customers GROUP BY gender, products_number
+UNION ALL
+SELECT CONCAT(gender, ' + Balance ', balance_band), COUNT(*), SUM(churn)
+FROM bank_customers GROUP BY gender, balance_band
+UNION ALL
+SELECT CONCAT('Age ', age_group, ' + ', IF(active_member = 1, 'Active', 'Inactive')), COUNT(*), SUM(churn)
+FROM bank_customers GROUP BY age_group, active_member
+UNION ALL
+SELECT CONCAT('Age ', age_group, ' + ', products_number, IF(products_number = 1, ' product', ' products')), COUNT(*), SUM(churn)
+FROM bank_customers GROUP BY age_group, products_number
+UNION ALL
+SELECT CONCAT('Age ', age_group, ' + Balance ', balance_band), COUNT(*), SUM(churn)
+FROM bank_customers GROUP BY age_group, balance_band
+UNION ALL
+SELECT CONCAT(IF(active_member = 1, 'Active', 'Inactive'), ' + ', products_number, IF(products_number = 1, ' product', ' products')), COUNT(*), SUM(churn)
+FROM bank_customers GROUP BY active_member, products_number
+UNION ALL
+SELECT CONCAT(IF(active_member = 1, 'Active', 'Inactive'), ' + Balance ', balance_band), COUNT(*), SUM(churn)
+FROM bank_customers GROUP BY active_member, balance_band
+UNION ALL
+SELECT CONCAT(products_number, IF(products_number = 1, ' product', ' products'), ' + Balance ', balance_band), COUNT(*), SUM(churn)
+FROM bank_customers GROUP BY products_number, balance_band
+--------------
+
+--------------
+SELECT
+    COUNT(*) AS segments_checked,
+    SUM(CASE WHEN customers < 100 THEN 1 ELSE 0 END) AS segments_under_100_customers
+FROM pair_segments
+--------------
+
++------------------+------------------------------+
+| segments_checked | segments_under_100_customers |
++------------------+------------------------------+
+|              162 |                           29 |
++------------------+------------------------------+
+--------------
+WITH overall AS (
+    SELECT SUM(churn) AS all_churned,
+           SUM(churn) * 100.0 / COUNT(*) AS overall_rate
+    FROM bank_customers
+)
+SELECT
+    segment,
+    customers,
+    churned,
+    ROUND(churned * 100.0 / customers, 2) AS churn_rate_pct,
+    ROUND(churned * 100.0 / all_churned, 2) AS share_of_churn_pct
+FROM pair_segments
+CROSS JOIN overall
+WHERE customers >= 100
+  AND churned * 100.0 / customers >= overall_rate * 2
+  AND churned * 100.0 / all_churned >= 10
+ORDER BY churn_rate_pct DESC
+--------------
+
++-------------------------------------------------+-----------+---------+----------------+--------------------+
+| segment                                         | customers | churned | churn_rate_pct | share_of_churn_pct |
++-------------------------------------------------+-----------+---------+----------------+--------------------+
+| Age 50 to 59 + Inactive                         |       373 |     303 |          81.23 |              14.87 |
+| Age 50 to 59 + 1 product                        |       537 |     344 |          64.06 |              16.89 |
+| Female + Age 50 to 59                           |       421 |     265 |          62.95 |              13.01 |
+| Age 50 to 59 + Balance Above 100,000 to 150,000 |       375 |     228 |          60.80 |              11.19 |
+| Male + Age 50 to 59                             |       448 |     222 |          49.55 |              10.90 |
+| Germany + Age 40 to 49                          |       740 |     334 |          45.14 |              16.40 |
+| Germany + 1 product                             |      1349 |     578 |          42.85 |              28.38 |
+| Germany + Inactive                              |      1261 |     518 |          41.08 |              25.43 |
++-------------------------------------------------+-----------+---------+----------------+--------------------+
+--------------
+WITH overall AS (
+    SELECT SUM(churn) AS all_churned,
+           SUM(churn) * 100.0 / COUNT(*) AS overall_rate
+    FROM bank_customers
+)
+SELECT
+    segment,
+    customers,
+    churned,
+    ROUND(churned * 100.0 / customers, 2) AS churn_rate_pct,
+    ROUND(churned * 100.0 / all_churned, 2) AS share_of_churn_pct
+FROM pair_segments
+CROSS JOIN overall
+WHERE customers >= 100
+  AND churned * 100.0 / customers < overall_rate * 2
+  AND churned * 100.0 / customers > overall_rate
+  AND churned * 100.0 / all_churned >= 25
+ORDER BY share_of_churn_pct DESC
+--------------
+
++----------------------------------------------+-----------+---------+----------------+--------------------+
+| segment                                      | customers | churned | churn_rate_pct | share_of_churn_pct |
++----------------------------------------------+-----------+---------+----------------+--------------------+
+| Inactive + 1 product                         |      2521 |     924 |          36.65 |              45.36 |
+| Female + 1 product                           |      2296 |     762 |          33.19 |              37.41 |
+| Female + Inactive                            |      2259 |     725 |          32.09 |              35.59 |
+| 1 product + Balance Above 100,000 to 150,000 |      2537 |     698 |          27.51 |              34.27 |
+| Male + 1 product                             |      2788 |     647 |          23.21 |              31.76 |
+| Germany + Balance Above 100,000 to 150,000   |      1652 |     646 |          39.10 |              31.71 |
+| Inactive + Balance Above 100,000 to 150,000  |      1872 |     627 |          33.49 |              30.78 |
+| Male + Inactive                              |      2590 |     577 |          22.28 |              28.33 |
+| Age 40 to 49 + 1 product                     |      1409 |     565 |          40.10 |              27.74 |
+| France + 1 product                           |      2514 |     564 |          22.43 |              27.69 |
+| Female + Balance Above 100,000 to 150,000    |      1724 |     533 |          30.92 |              26.17 |
+| Age 40 to 49 + Inactive                      |      1396 |     530 |          37.97 |              26.02 |
+| France + Inactive                            |      2423 |     512 |          21.13 |              25.14 |
++----------------------------------------------+-----------+---------+----------------+--------------------+
+--------------
+WITH overall AS (
+    SELECT SUM(churn) AS all_churned,
+           SUM(churn) * 100.0 / COUNT(*) AS overall_rate
+    FROM bank_customers
+)
+SELECT
+    segment,
+    customers,
+    churned,
+    ROUND(churned * 100.0 / customers, 2) AS churn_rate_pct,
+    ROUND(churned * 100.0 / all_churned, 2) AS share_of_churn_pct
+FROM pair_segments
+CROSS JOIN overall
+WHERE customers >= 100
+  AND churned * 100.0 / customers >= overall_rate * 2
+  AND churned * 100.0 / all_churned < 10
+ORDER BY churn_rate_pct DESC
+LIMIT 10
+--------------
+
++-----------------------------------------------+-----------+---------+----------------+--------------------+
+| segment                                       | customers | churned | churn_rate_pct | share_of_churn_pct |
++-----------------------------------------------+-----------+---------+----------------+--------------------+
+| 3 products + Balance Above 100,000 to 150,000 |       103 |      97 |          94.17 |               4.76 |
+| Inactive + 3 products                         |       153 |     135 |          88.24 |               6.63 |
+| Female + 3 products                           |       149 |     129 |          86.58 |               6.33 |
+| Age 60 and above + Inactive                   |       111 |      95 |          85.59 |               4.66 |
+| France + 3 products                           |       104 |      82 |          78.85 |               4.03 |
+| Male + 3 products                             |       117 |      91 |          77.78 |               4.47 |
+| Active + 3 products                           |       113 |      85 |          75.22 |               4.17 |
+| Germany + Age 50 to 59                        |       277 |     194 |          70.04 |               9.52 |
+| Age 50 to 59 + Balance Above 0 to 100,000     |       143 |      74 |          51.75 |               3.63 |
+| France + Age 50 to 59                         |       382 |     197 |          51.57 |               9.67 |
++-----------------------------------------------+-----------+---------+----------------+--------------------+
+--------------
+SELECT
+    segment,
+    customers,
+    churned,
+    ROUND(churned * 100.0 / customers, 2) AS churn_rate_pct
+FROM pair_segments
+WHERE customers < 100
+ORDER BY churn_rate_pct DESC, customers DESC
+LIMIT 10
+--------------
+
++-----------------------------------------------+-----------+---------+----------------+
+| segment                                       | customers | churned | churn_rate_pct |
++-----------------------------------------------+-----------+---------+----------------+
+| Female + 4 products                           |        38 |      38 |         100.00 |
+| 4 products + Balance Above 100,000 to 150,000 |        33 |      33 |         100.00 |
+| Inactive + 4 products                         |        31 |      31 |         100.00 |
+| France + 4 products                           |        29 |      29 |         100.00 |
+| Active + 4 products                           |        29 |      29 |         100.00 |
+| Age 40 to 49 + 4 products                     |        26 |      26 |         100.00 |
+| Germany + 4 products                          |        24 |      24 |         100.00 |
+| Male + 4 products                             |        22 |      22 |         100.00 |
+| Age 50 to 59 + 4 products                     |        17 |      17 |         100.00 |
+| 4 products + Balance Zero                     |        14 |      14 |         100.00 |
++-----------------------------------------------+-----------+---------+----------------+
+
+################ 05_python_sql_validation ################
+--------------
+DROP TEMPORARY TABLE IF EXISTS python_results
+--------------
+
+--------------
+DROP TEMPORARY TABLE IF EXISTS validation_results
+--------------
+
+--------------
+CREATE TEMPORARY TABLE python_results (
+    measure_no    INT            NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    measure       VARCHAR(50)    NOT NULL,
+    python_value  DECIMAL(15,2)  NOT NULL
+)
+--------------
+
+--------------
+INSERT INTO python_results (measure, python_value) VALUES
+    ('Total customers', 10000),
+    ('Churned customers', 2037),
+    ('Retained customers', 7963),
+    ('Overall churn rate', 20.37),
+    ('Overall retention rate', 79.63),
+    ('Churn rate: France', 16.15),
+    ('Churn rate: Germany', 32.44),
+    ('Churn rate: Spain', 16.67),
+    ('Churn rate: Age Under 30', 7.56),
+    ('Churn rate: Age 30 to 39', 10.88),
+    ('Churn rate: Age 40 to 49', 30.79),
+    ('Churn rate: Age 50 to 59', 56.04),
+    ('Churn rate: Age 60 and above', 27.95),
+    ('Churn rate: Inactive', 26.85),
+    ('Churn rate: Active', 14.27),
+    ('Churn rate: 1 product', 27.71),
+    ('Churn rate: 2 products', 7.58),
+    ('Churn rate: 3 products', 82.71),
+    ('Churn rate: 4 products', 100.00),
+    ('Balance held by churned customers', 185588094.63),
+    ('Balance held by all customers', 764858892.88),
+    ('Combination segments checked', 162),
+    ('Combination segments under 100 customers', 29),
+    ('Priority segments', 8)
+--------------
+
+--------------
+CREATE TEMPORARY TABLE validation_results AS
+WITH overall AS (
+    SELECT SUM(churn) AS all_churned,
+           SUM(churn) * 100.0 / COUNT(*) AS overall_rate
+    FROM bank_customers
+),
+sql_results AS (
+    SELECT 'Total customers' AS measure, COUNT(*) AS sql_value FROM bank_customers
+    UNION ALL
+    SELECT 'Churned customers', SUM(churn) FROM bank_customers
+    UNION ALL
+    SELECT 'Retained customers', COUNT(*) - SUM(churn) FROM bank_customers
+    UNION ALL
+    SELECT 'Overall churn rate', ROUND(SUM(churn) * 100.0 / COUNT(*), 2) FROM bank_customers
+    UNION ALL
+    SELECT 'Overall retention rate', ROUND((COUNT(*) - SUM(churn)) * 100.0 / COUNT(*), 2) FROM bank_customers
+    UNION ALL
+    SELECT CONCAT('Churn rate: ', country), ROUND(SUM(churn) * 100.0 / COUNT(*), 2)
+    FROM bank_customers GROUP BY country
+    UNION ALL
+    SELECT CONCAT('Churn rate: Age ', age_group), ROUND(SUM(churn) * 100.0 / COUNT(*), 2)
+    FROM bank_customers GROUP BY age_group
+    UNION ALL
+    SELECT CASE WHEN active_member = 1 THEN 'Churn rate: Active' ELSE 'Churn rate: Inactive' END,
+           ROUND(SUM(churn) * 100.0 / COUNT(*), 2)
+    FROM bank_customers GROUP BY active_member
+    UNION ALL
+    SELECT CONCAT('Churn rate: ', products_number, IF(products_number = 1, ' product', ' products')),
+           ROUND(SUM(churn) * 100.0 / COUNT(*), 2)
+    FROM bank_customers GROUP BY products_number
+    UNION ALL
+    SELECT 'Balance held by churned customers', SUM(CASE WHEN churn = 1 THEN balance ELSE 0 END) FROM bank_customers
+    UNION ALL
+    SELECT 'Balance held by all customers', SUM(balance) FROM bank_customers
+    UNION ALL
+    SELECT 'Combination segments checked', COUNT(*) FROM pair_segments
+    UNION ALL
+    SELECT 'Combination segments under 100 customers', SUM(CASE WHEN customers < 100 THEN 1 ELSE 0 END) FROM pair_segments
+    UNION ALL
+    SELECT 'Priority segments', COUNT(*)
+    FROM pair_segments
+    CROSS JOIN overall
+    WHERE customers >= 100
+      AND churned * 100.0 / customers >= overall_rate * 2
+      AND churned * 100.0 / all_churned >= 10
+)
+
+SELECT
+    p.measure_no,
+    p.measure,
+    p.python_value,
+    s.sql_value,
+    s.sql_value - p.python_value AS difference,
+    CASE WHEN s.sql_value = p.python_value THEN 'MATCH' ELSE 'DIFFERENT' END AS result
+FROM python_results AS p
+LEFT JOIN sql_results AS s
+    ON p.measure = s.measure
+--------------
+
+--------------
+SELECT measure, python_value, sql_value, difference, result
+FROM validation_results
+ORDER BY measure_no
+--------------
+
++------------------------------------------+--------------+--------------+------------+--------+
+| measure                                  | python_value | sql_value    | difference | result |
++------------------------------------------+--------------+--------------+------------+--------+
+| Total customers                          |     10000.00 |     10000.00 |       0.00 | MATCH  |
+| Churned customers                        |      2037.00 |      2037.00 |       0.00 | MATCH  |
+| Retained customers                       |      7963.00 |      7963.00 |       0.00 | MATCH  |
+| Overall churn rate                       |        20.37 |        20.37 |       0.00 | MATCH  |
+| Overall retention rate                   |        79.63 |        79.63 |       0.00 | MATCH  |
+| Churn rate: France                       |        16.15 |        16.15 |       0.00 | MATCH  |
+| Churn rate: Germany                      |        32.44 |        32.44 |       0.00 | MATCH  |
+| Churn rate: Spain                        |        16.67 |        16.67 |       0.00 | MATCH  |
+| Churn rate: Age Under 30                 |         7.56 |         7.56 |       0.00 | MATCH  |
+| Churn rate: Age 30 to 39                 |        10.88 |        10.88 |       0.00 | MATCH  |
+| Churn rate: Age 40 to 49                 |        30.79 |        30.79 |       0.00 | MATCH  |
+| Churn rate: Age 50 to 59                 |        56.04 |        56.04 |       0.00 | MATCH  |
+| Churn rate: Age 60 and above             |        27.95 |        27.95 |       0.00 | MATCH  |
+| Churn rate: Inactive                     |        26.85 |        26.85 |       0.00 | MATCH  |
+| Churn rate: Active                       |        14.27 |        14.27 |       0.00 | MATCH  |
+| Churn rate: 1 product                    |        27.71 |        27.71 |       0.00 | MATCH  |
+| Churn rate: 2 products                   |         7.58 |         7.58 |       0.00 | MATCH  |
+| Churn rate: 3 products                   |        82.71 |        82.71 |       0.00 | MATCH  |
+| Churn rate: 4 products                   |       100.00 |       100.00 |       0.00 | MATCH  |
+| Balance held by churned customers        | 185588094.63 | 185588094.63 |       0.00 | MATCH  |
+| Balance held by all customers            | 764858892.88 | 764858892.88 |       0.00 | MATCH  |
+| Combination segments checked             |       162.00 |       162.00 |       0.00 | MATCH  |
+| Combination segments under 100 customers |        29.00 |        29.00 |       0.00 | MATCH  |
+| Priority segments                        |         8.00 |         8.00 |       0.00 | MATCH  |
++------------------------------------------+--------------+--------------+------------+--------+
+--------------
+SELECT
+    COUNT(*) AS measures_compared,
+    SUM(CASE WHEN result = 'MATCH' THEN 1 ELSE 0 END) AS matches,
+    SUM(CASE WHEN result = 'DIFFERENT' THEN 1 ELSE 0 END) AS differences
+FROM validation_results
+--------------
+
++-------------------+---------+-------------+
+| measures_compared | matches | differences |
++-------------------+---------+-------------+
+|                24 |      24 |           0 |
++-------------------+---------+-------------+
+

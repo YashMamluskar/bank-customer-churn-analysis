@@ -1,0 +1,409 @@
+{
+  "compatibilityLevel": 1567,
+  "model": {
+    "annotations": [
+      {
+        "name": "PBI_QueryOrder",
+        "value": "[\"ProjectFolder\", \"bank_customers\"]"
+      },
+      {
+        "name": "__PBI_TimeIntelligenceEnabled",
+        "value": "0"
+      },
+      {
+        "name": "PBI_ProTooling",
+        "value": "[\"DevMode\"]"
+      }
+    ],
+    "culture": "en-US",
+    "dataAccessOptions": {
+      "legacyRedirects": true,
+      "returnErrorValuesAsNull": true
+    },
+    "defaultPowerBIDataSourceVersion": "powerBI_V3",
+    "expressions": [
+      {
+        "name": "ProjectFolder",
+        "description": "Main project folder. Change this if the project moves to another location.",
+        "expression": "\"C:\\TYDSDA\\Data_Analyst_Projects\\Project_03_Customer_Churn_Analysis_Bank\" meta [IsParameterQuery = true, Type = \"Text\", IsParameterQueryRequired = true]",
+        "kind": "m",
+        "lineageTag": "d88b1ab2-7c15-4a10-9cb9-63cd8cde97bc"
+      }
+    ],
+    "sourceQueryCulture": "en-US",
+    "tables": [
+      {
+        "name": "bank_customers",
+        "columns": [
+          {
+            "name": "customer_id",
+            "dataType": "int64",
+            "lineageTag": "4b0f094b-7397-539c-b4e5-664b4fdf3ce7",
+            "sourceColumn": "customer_id",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "credit_score",
+            "dataType": "int64",
+            "lineageTag": "c664b9da-6af5-591b-ac87-aa0fa69398aa",
+            "sourceColumn": "credit_score",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "country",
+            "dataType": "string",
+            "lineageTag": "ca9dc1b1-05e9-5368-9d82-06e161f582cb",
+            "sourceColumn": "country",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "gender",
+            "dataType": "string",
+            "lineageTag": "71759bc3-70f0-5d5d-94e1-fcc7ce7694e5",
+            "sourceColumn": "gender",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "age",
+            "dataType": "int64",
+            "lineageTag": "d0191b10-57fb-5c2e-9d80-52c65c631a53",
+            "sourceColumn": "age",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "tenure",
+            "dataType": "int64",
+            "lineageTag": "604e3b76-3616-567a-b2ea-4c37b52bbeca",
+            "sourceColumn": "tenure",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "balance",
+            "dataType": "decimal",
+            "lineageTag": "0b738d9a-1974-55c9-9c4d-80172ae91795",
+            "sourceColumn": "balance",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "products_number",
+            "dataType": "int64",
+            "lineageTag": "09bca3ac-1d28-5416-b56e-aa7e451a99d3",
+            "sourceColumn": "products_number",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "credit_card",
+            "dataType": "int64",
+            "lineageTag": "f6c91454-13ef-541d-8776-4751e07d282a",
+            "sourceColumn": "credit_card",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "active_member",
+            "dataType": "int64",
+            "lineageTag": "78e45e80-da89-5163-b3ec-f6b395a00b78",
+            "sourceColumn": "active_member",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "estimated_salary",
+            "dataType": "decimal",
+            "lineageTag": "ef358928-1bed-56d1-877f-12982bbc7896",
+            "sourceColumn": "estimated_salary",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "churn",
+            "dataType": "int64",
+            "lineageTag": "cfc02436-d511-5c52-9604-4f541a38cffa",
+            "sourceColumn": "churn",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "age_group",
+            "dataType": "string",
+            "lineageTag": "870a8ce6-ae46-5ed3-871d-1d35657bf92d",
+            "sortByColumn": "Age Group Order",
+            "sourceColumn": "age_group",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "tenure_group",
+            "dataType": "string",
+            "lineageTag": "d24d637d-0aac-513e-9d4e-9d794aa942e3",
+            "sortByColumn": "Tenure Group Order",
+            "sourceColumn": "tenure_group",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "credit_score_band",
+            "dataType": "string",
+            "lineageTag": "6565a5e7-c7cf-52cd-8c4f-1bea894e59e8",
+            "sortByColumn": "Credit Score Band Order",
+            "sourceColumn": "credit_score_band",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "salary_band",
+            "dataType": "string",
+            "lineageTag": "2cebe5d6-a9d1-5b92-a8de-49a389cb908f",
+            "sortByColumn": "Salary Band Order",
+            "sourceColumn": "salary_band",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "balance_band",
+            "dataType": "string",
+            "lineageTag": "a7875e99-1129-5697-996c-f937ff395ff4",
+            "sortByColumn": "Balance Band Order",
+            "sourceColumn": "balance_band",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Age Group Order",
+            "dataType": "int64",
+            "isHidden": true,
+            "lineageTag": "a8f03702-6bdd-44f5-ab8d-d4744badcf42",
+            "sourceColumn": "Age Group Order",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Tenure Group Order",
+            "dataType": "int64",
+            "isHidden": true,
+            "lineageTag": "39145d77-6bc1-4abe-9d51-9dc776b84332",
+            "sourceColumn": "Tenure Group Order",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Credit Score Band Order",
+            "dataType": "int64",
+            "isHidden": true,
+            "lineageTag": "523c6826-3ded-4811-a0a1-84ce4a013ad6",
+            "sourceColumn": "Credit Score Band Order",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Salary Band Order",
+            "dataType": "int64",
+            "isHidden": true,
+            "lineageTag": "10db026e-3b20-48a3-a1b5-0d1caf803826",
+            "sourceColumn": "Salary Band Order",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Balance Band Order",
+            "dataType": "int64",
+            "isHidden": true,
+            "lineageTag": "87ca3882-ee8b-4d61-a24a-6e64d8ef4bcc",
+            "sourceColumn": "Balance Band Order",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Customer Status",
+            "dataType": "string",
+            "expression": "IF(bank_customers[churn] = 1, \"Churned\", \"Retained\")",
+            "isDataTypeInferred": true,
+            "lineageTag": "5959df65-1402-407d-a222-25fc9a6fccd7",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "Membership Status",
+            "dataType": "string",
+            "expression": "IF(bank_customers[active_member] = 1, \"Active\", \"Inactive\")",
+            "isDataTypeInferred": true,
+            "lineageTag": "e3971174-ee9c-48b9-b6cd-c6aa45d2d6e1",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "Credit Card Status",
+            "dataType": "string",
+            "expression": "IF(bank_customers[credit_card] = 1, \"Has credit card\", \"No credit card\")",
+            "isDataTypeInferred": true,
+            "lineageTag": "e1cc220d-1b45-4280-b993-f171b0150012",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "Products Held",
+            "dataType": "string",
+            "expression": "bank_customers[products_number] & IF(bank_customers[products_number] = 1, \" product\", \" products\")",
+            "isDataTypeInferred": true,
+            "lineageTag": "e5b9ff8d-6749-4530-bbe1-8787648f0b40",
+            "sortByColumn": "products_number",
+            "summarizeBy": "none",
+            "type": "calculated"
+          }
+        ],
+        "lineageTag": "6f603742-1479-4eec-b10b-c3d04351a1a4",
+        "measures": [
+          {
+            "name": "Total Customers",
+            "description": "Counts customer rows. Each row is one customer.",
+            "expression": "COUNTROWS(bank_customers)",
+            "formatString": "#,0",
+            "lineageTag": "8572a065-1b24-43fa-849d-cbff4200d581"
+          },
+          {
+            "name": "Churned Customers",
+            "description": "Adds the churn column, where 1 means the customer left.",
+            "expression": "SUM(bank_customers[churn])",
+            "formatString": "#,0",
+            "lineageTag": "6296f0e2-d624-429e-97d2-83c8705140a3"
+          },
+          {
+            "name": "Retained Customers",
+            "description": "Customers who did not leave.",
+            "expression": "[Total Customers] - [Churned Customers]",
+            "formatString": "#,0",
+            "lineageTag": "5ba74739-5b38-48d3-acc9-7b3f776123a7"
+          },
+          {
+            "name": "Churn Rate",
+            "description": "Churned customers as a share of customers in the current selection.",
+            "expression": "DIVIDE([Churned Customers], [Total Customers])",
+            "formatString": "0.00%",
+            "lineageTag": "9630c71d-47ab-4227-bbf2-a65a11cfdda3"
+          },
+          {
+            "name": "Retention Rate",
+            "description": "Retained customers as a share of customers in the current selection.",
+            "expression": "DIVIDE([Retained Customers], [Total Customers])",
+            "formatString": "0.00%",
+            "lineageTag": "f3c77cbb-f661-42fa-8c74-9fcd0f80e77d"
+          },
+          {
+            "name": "Churn Contribution %",
+            "description": "Churned customers in the current selection as a share of all 2,037 churned customers. ALL ignores slicers for the denominator.",
+            "expression": "DIVIDE([Churned Customers], CALCULATE([Churned Customers], ALL(bank_customers)))",
+            "formatString": "0.00%",
+            "lineageTag": "95f2ad71-8c02-4c46-8d07-78be3227b931"
+          },
+          {
+            "name": "Total Customer Balance",
+            "description": "Adds all account balances. This is not revenue or profit.",
+            "expression": "SUM(bank_customers[balance])",
+            "formatString": "#,0.00",
+            "lineageTag": "f40f37d3-51c9-4d58-9939-f1dfbe1cc522"
+          },
+          {
+            "name": "Churned Customer Balance",
+            "description": "Adds balances held by churned customers. This is not lost revenue or profit.",
+            "expression": "CALCULATE([Total Customer Balance], bank_customers[churn] = 1)",
+            "formatString": "#,0.00",
+            "lineageTag": "85a62d13-02a9-4352-952b-17738f392662"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "bank_customers",
+            "mode": "import",
+            "source": {
+              "expression": [
+                "let",
+                "    Source = Csv.Document(File.Contents(ProjectFolder & \"\\data\\processed\\bank_churn_cleaned.csv\"), [Delimiter = \",\", Columns = 17, Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),",
+                "    PromotedHeaders = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),",
+                "    ChangedTypes = Table.TransformColumnTypes(PromotedHeaders, {{\"customer_id\", Int64.Type}, {\"credit_score\", Int64.Type}, {\"country\", type text}, {\"gender\", type text}, {\"age\", Int64.Type}, {\"tenure\", Int64.Type}, {\"balance\", Currency.Type}, {\"products_number\", Int64.Type}, {\"credit_card\", Int64.Type}, {\"active_member\", Int64.Type}, {\"estimated_salary\", Currency.Type}, {\"churn\", Int64.Type}, {\"age_group\", type text}, {\"tenure_group\", type text}, {\"credit_score_band\", type text}, {\"salary_band\", type text}, {\"balance_band\", type text}}, \"en-US\"),",
+                "    AddedAgeGroupOrder = Table.AddColumn(ChangedTypes, \"Age Group Order\", each List.PositionOf({\"Under 30\", \"30 to 39\", \"40 to 49\", \"50 to 59\", \"60 and above\"}, [age_group]) + 1, Int64.Type),",
+                "    AddedTenureGroupOrder = Table.AddColumn(AddedAgeGroupOrder, \"Tenure Group Order\", each List.PositionOf({\"0 to 2\", \"3 to 5\", \"6 to 8\", \"9 to 10\"}, [tenure_group]) + 1, Int64.Type),",
+                "    AddedCreditScoreBandOrder = Table.AddColumn(AddedTenureGroupOrder, \"Credit Score Band Order\", each List.PositionOf({\"Below 580\", \"580 to 669\", \"670 to 739\", \"740 to 799\", \"800 and above\"}, [credit_score_band]) + 1, Int64.Type),",
+                "    AddedSalaryBandOrder = Table.AddColumn(AddedCreditScoreBandOrder, \"Salary Band Order\", each List.PositionOf({\"Under 50,000\", \"50,000 to under 100,000\", \"100,000 to under 150,000\", \"150,000 and above\"}, [salary_band]) + 1, Int64.Type),",
+                "    AddedBalanceBandOrder = Table.AddColumn(AddedSalaryBandOrder, \"Balance Band Order\", each List.PositionOf({\"Zero\", \"Above 0 to 100,000\", \"Above 100,000 to 150,000\", \"Above 150,000\"}, [balance_band]) + 1, Int64.Type)",
+                "in",
+                "    AddedBalanceBandOrder"
+              ],
+              "type": "m"
+            }
+          }
+        ]
+      },
+      {
+        "name": "Priority Segments",
+        "columns": [
+          {
+            "name": "Segment",
+            "dataType": "string",
+            "isDataTypeInferred": true,
+            "isNameInferred": true,
+            "lineageTag": "307ee1c4-1c8e-4dbc-90fe-62ea790d510c",
+            "sourceColumn": "[Segment]",
+            "summarizeBy": "none",
+            "type": "calculatedTableColumn"
+          },
+          {
+            "name": "Customers",
+            "dataType": "int64",
+            "formatString": "#,0",
+            "isDataTypeInferred": true,
+            "isNameInferred": true,
+            "lineageTag": "49ea74bf-e8d0-42e4-a0ac-f5b1f4a616b0",
+            "sourceColumn": "[Customers]",
+            "summarizeBy": "none",
+            "type": "calculatedTableColumn"
+          },
+          {
+            "name": "Churned",
+            "dataType": "int64",
+            "formatString": "#,0",
+            "isDataTypeInferred": true,
+            "isNameInferred": true,
+            "lineageTag": "7344c6d1-b73d-4060-90fe-55b2b9478536",
+            "sourceColumn": "[Churned]",
+            "summarizeBy": "none",
+            "type": "calculatedTableColumn"
+          },
+          {
+            "name": "Churn Rate",
+            "dataType": "double",
+            "formatString": "0.00%",
+            "isDataTypeInferred": true,
+            "isNameInferred": true,
+            "lineageTag": "5c50f232-8859-406d-84ee-a0a992e3c741",
+            "sourceColumn": "[Churn Rate]",
+            "summarizeBy": "none",
+            "type": "calculatedTableColumn"
+          },
+          {
+            "name": "Share of Total Churn",
+            "dataType": "double",
+            "formatString": "0.00%",
+            "isDataTypeInferred": true,
+            "isNameInferred": true,
+            "lineageTag": "291e5bdd-992b-4e3e-85a3-e4362e229536",
+            "sourceColumn": "[Share of Total Churn]",
+            "summarizeBy": "none",
+            "type": "calculatedTableColumn"
+          }
+        ],
+        "lineageTag": "187137c6-33f6-44de-a8fc-d0810f8650c2",
+        "partitions": [
+          {
+            "name": "Priority Segments",
+            "mode": "import",
+            "source": {
+              "expression": [
+                "ADDCOLUMNS(",
+                "    UNION(",
+                "        ROW(\"Segment\", \"Age 50 to 59 + Inactive\", \"Customers\", CALCULATE([Total Customers], bank_customers[age_group] = \"50 to 59\", bank_customers[active_member] = 0), \"Churned\", CALCULATE([Churned Customers], bank_customers[age_group] = \"50 to 59\", bank_customers[active_member] = 0)),",
+                "        ROW(\"Segment\", \"Age 50 to 59 + 1 product\", \"Customers\", CALCULATE([Total Customers], bank_customers[age_group] = \"50 to 59\", bank_customers[products_number] = 1), \"Churned\", CALCULATE([Churned Customers], bank_customers[age_group] = \"50 to 59\", bank_customers[products_number] = 1)),",
+                "        ROW(\"Segment\", \"Female + Age 50 to 59\", \"Customers\", CALCULATE([Total Customers], bank_customers[gender] = \"Female\", bank_customers[age_group] = \"50 to 59\"), \"Churned\", CALCULATE([Churned Customers], bank_customers[gender] = \"Female\", bank_customers[age_group] = \"50 to 59\")),",
+                "        ROW(\"Segment\", \"Age 50 to 59 + Balance above 100,000 to 150,000\", \"Customers\", CALCULATE([Total Customers], bank_customers[age_group] = \"50 to 59\", bank_customers[balance_band] = \"Above 100,000 to 150,000\"), \"Churned\", CALCULATE([Churned Customers], bank_customers[age_group] = \"50 to 59\", bank_customers[balance_band] = \"Above 100,000 to 150,000\")),",
+                "        ROW(\"Segment\", \"Male + Age 50 to 59\", \"Customers\", CALCULATE([Total Customers], bank_customers[gender] = \"Male\", bank_customers[age_group] = \"50 to 59\"), \"Churned\", CALCULATE([Churned Customers], bank_customers[gender] = \"Male\", bank_customers[age_group] = \"50 to 59\")),",
+                "        ROW(\"Segment\", \"Germany + Age 40 to 49\", \"Customers\", CALCULATE([Total Customers], bank_customers[country] = \"Germany\", bank_customers[age_group] = \"40 to 49\"), \"Churned\", CALCULATE([Churned Customers], bank_customers[country] = \"Germany\", bank_customers[age_group] = \"40 to 49\")),",
+                "        ROW(\"Segment\", \"Germany + 1 product\", \"Customers\", CALCULATE([Total Customers], bank_customers[country] = \"Germany\", bank_customers[products_number] = 1), \"Churned\", CALCULATE([Churned Customers], bank_customers[country] = \"Germany\", bank_customers[products_number] = 1)),",
+                "        ROW(\"Segment\", \"Germany + Inactive\", \"Customers\", CALCULATE([Total Customers], bank_customers[country] = \"Germany\", bank_customers[active_member] = 0), \"Churned\", CALCULATE([Churned Customers], bank_customers[country] = \"Germany\", bank_customers[active_member] = 0))",
+                "    ),",
+                "    \"Churn Rate\", DIVIDE([Churned], [Customers]),",
+                "    \"Share of Total Churn\", DIVIDE([Churned], CALCULATE([Churned Customers], ALL(bank_customers)))",
+                ")"
+              ],
+              "type": "calculated"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

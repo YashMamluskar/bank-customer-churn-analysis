@@ -1,0 +1,21 @@
+# Power BI local caches and settings
+**/.pbi/localSettings.json
+**/.pbi/cache.abf
+~$*.pbix
+
+# Python / Jupyter
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.venv/
+
+# Local secrets and tool settings
+.env
+.claude/
+
+# OS / editor
+Thumbs.db
+Desktop.ini
+.DS_Store
+.vscode/
+.idea/
